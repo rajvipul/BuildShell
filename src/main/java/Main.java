@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Scanner;
 
 public class Main {
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
 
         //Stage REPL
 //        Scanner scanner = new Scanner(System.in);
@@ -82,10 +82,6 @@ public class Main {
                     if (!found) {
                         System.out.println(output + ": not found");
                     }
-
-
-
-                    //System.out.println(output + ": not found");
                 }
             }
             else {
