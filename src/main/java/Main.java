@@ -92,7 +92,7 @@ public class Main {
 //        }
 
 
-        //Stage -- Run a program
+        //Stage -- Run a program and pwd command
         while (true) {
             System.out.print("$ ");
             Scanner scanner = new Scanner(System.in);
