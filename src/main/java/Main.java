@@ -91,8 +91,8 @@ public class Main {
 //            }
 //        }
 
-        List<String> builtIns = Arrays.asList("echo", "exit", "type");
 
+        //Stage -- Run a program
         while (true) {
             System.out.print("$ ");
             Scanner scanner = new Scanner(System.in);
@@ -105,6 +105,9 @@ public class Main {
             else if (input.startsWith("echo")) {
                 String output = input.replaceFirst("^echo\\s", "");
                 System.out.println(output);
+            }
+            else if (input.equals("pwd")) {
+                System.out.println(System.getProperty("user.dir"));
             }
             //String command = parts[0];
             else if (input.startsWith("type")) {
@@ -125,7 +128,7 @@ public class Main {
     private static void handleTypeCommand(String[] parts) {
 
         String output = parts[1];
-        if (Arrays.asList("echo", "exit", "type").contains(output)) {
+        if (Arrays.asList("echo", "exit", "type", "pwd").contains(output)) {
             System.out.println(output + " is a shell builtin");
         } else if (output.equals("invalid(_.*)?_command")) {
             System.out.println(output + ": command not found");
