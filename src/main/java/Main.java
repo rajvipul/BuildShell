@@ -1,3 +1,4 @@
+import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
@@ -45,7 +46,7 @@ public class Main {
 //            }
 //        }
 
-        //Stage -- The type-builtin stage
+        //Stage -- The type-builtin & executable stage
         List<String> builtIns = Arrays.asList("echo", "exit", "type");
 
         while(true) {
@@ -65,7 +66,26 @@ public class Main {
                 } else if (output.equals("invalid_command")) {
                     System.out.println(output + ": command not found");
                 } else {
-                    System.out.println(output + ": not found");
+                    String systemPath = System.getenv("PATH"); // Get system PATH
+                    boolean found = false;
+
+                    if (systemPath != null) {
+                        for (String dir : systemPath.split(File.pathSeparator)) {
+                            File file = new File(dir, output);
+                            if (file.exists() && file.canExecute()) {
+                                System.out.println(output + " is " + file.getAbsolutePath());
+                                found = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (!found) {
+                        System.out.println(output + ": not found");
+                    }
+
+
+
+                    //System.out.println(output + ": not found");
                 }
             }
             else {
