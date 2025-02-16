@@ -2,7 +2,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Scanner;
 
 public class Main {
@@ -93,6 +92,7 @@ public class Main {
 
 
         //Stage -- Run a program and pwd command
+        File currentDir = new File(System.getProperty("user.dir")); // Track working directory
         while (true) {
             System.out.print("$ ");
             Scanner scanner = new Scanner(System.in);
@@ -107,7 +107,11 @@ public class Main {
                 System.out.println(output);
             }
             else if (input.equals("pwd")) {
-                System.out.println(System.getProperty("user.dir"));
+                System.out.println(currentDir.getAbsolutePath());
+                //System.out.println(System.getProperty("user.dir"));
+            }
+            else if (input.startsWith("cd")) {
+                currentDir = changeDirectory(currentDir, parts);
             }
             //String command = parts[0];
             else if (input.startsWith("type")) {
@@ -115,7 +119,7 @@ public class Main {
             }
             else if (parts.length > 1 && !input.startsWith("echo")) {
                 // Try to execute an external command
-                executeExternalCommand(parts);
+                executeExternalCommand(parts, currentDir);
             }
             else {
                 System.out.println(input + ": command not found");
@@ -123,6 +127,38 @@ public class Main {
             }
         }
 
+    }
+
+    private static File changeDirectory(File currentDir, String[] parts) {
+        if (parts.length < 2) {
+            System.out.println("cd: missing argument");
+            return currentDir;
+        }
+
+        String targetPath = parts[1];
+        File newDir;
+
+        if (targetPath.equals("..")) { // Handle 'cd ..'
+            newDir = currentDir.getParentFile();
+        }
+        else if (targetPath.equals("~")) { // Handle 'cd ~' (home directory)
+            newDir = new File(System.getProperty("user.home"));
+        }
+        else if (targetPath.startsWith("/")) {
+            newDir = new File(targetPath);
+            //System.out.println("newDir" +newDir);
+        }
+        else {
+            newDir = new File(currentDir, targetPath);
+        }
+
+
+        if (newDir != null && newDir.exists() && newDir.isDirectory()) {
+            return newDir; // Update working directory
+        } else {
+            System.out.println("cd: " + targetPath + ": No such file or directory");
+            return currentDir; // Keep the same directory if cd fails
+        }
     }
 
     private static void handleTypeCommand(String[] parts) {
@@ -152,22 +188,10 @@ public class Main {
         }
     }
 
-    private static String findCommandInPath(String command) {
-        String systemPath = System.getenv("PATH");
-        if (systemPath != null) {
-            for (String dir : systemPath.split(File.pathSeparator)) {
-                File file = new File(dir, command);
-                if (file.exists() && file.canExecute()) {
-                    return file.getAbsolutePath();
-                }
-            }
-        }
-        return null;
-    }
-
-    private static void executeExternalCommand(String[] commandWithArgs) {
+    private static void executeExternalCommand(String[] commandWithArgs, File currentDir) {
         try {
             ProcessBuilder processBuilder = new ProcessBuilder(commandWithArgs);
+            processBuilder.directory(currentDir); // Set working directory
             processBuilder.redirectErrorStream(true); // Merge stdout and stderr
             Process process = processBuilder.start();
 
